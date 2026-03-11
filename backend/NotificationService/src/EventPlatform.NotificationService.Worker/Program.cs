@@ -28,11 +28,7 @@ builder.Services.AddMassTransit(x =>
         cfg.ReceiveEndpoint("event-created", e =>
         {
             e.ConfigureConsumer<EventCreatedConsumer>(context);
-
-            // D3: Reintentos (3 intentos, intervalo 5 s)
             e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
-
-            // Tras agotar reintentos, MassTransit mueve el mensaje a la cola _error (DLQ implícita)
             e.PrefetchCount = 1;
         });
     });

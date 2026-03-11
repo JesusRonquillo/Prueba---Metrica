@@ -1,9 +1,5 @@
 namespace EventPlatform.Messaging.Contracts;
 
-/// <summary>
-/// Contrato obligatorio: messageId, eventId, name, occurredAt, correlationId, version.
-/// Compartido por EventService (publicador) y NotificationService (consumidor).
-/// </summary>
 public record EventCreatedMessage
 {
     public required Guid MessageId { get; init; }

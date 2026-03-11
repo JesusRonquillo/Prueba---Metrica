@@ -7,7 +7,7 @@ Backend del MVP de la **Plataforma de Eventos**, diseñado como arquitectura **o
 - `EventService`: API HTTP para gestionar eventos y zonas, publicar eventos de dominio y exponer el listado cacheado.
 - `NotificationService`: worker que consume eventos desde el broker y ejecuta acciones de notificación con idempotencia.
 
-La arquitectura completa (C4, flujos, decisiones) está detallada en `docs/architecture.md` y los diagramas en `docs/diagrams/`.
+La documentación de arquitectura y los diagramas están en la carpeta **`docs/`** del repositorio ([docs/README.md](../docs/README.md)).
 
 ---
 
@@ -45,14 +45,14 @@ La arquitectura completa (C4, flujos, decisiones) está detallada en `docs/archi
 
 Puedes levantar estos servicios de dos formas:
 
-- **Modo manual**: comandos `docker run` + `dotnet run` (documentado en `docs/COMANDOS-Y-RUTAS.md`).
+- **Modo manual**: comandos `docker run` + `dotnet run` (pasos resumidos más abajo y en el README raíz).
 - **Con docker-compose**: un solo comando para todo el stack.
 
 ---
 
 ## Ejecución local (manual, sin docker-compose)
 
-Ver sección detallada en `docs/COMANDOS-Y-RUTAS.md`, pero el flujo resumido es:
+Ver pasos en el README raíz del repositorio; el flujo resumido es:
 
 1. **Infra básica con Docker**
    - Postgres (BD `eventservice`).
@@ -73,7 +73,7 @@ Ver sección detallada en `docs/COMANDOS-Y-RUTAS.md`, pero el flujo resumido es:
    - Crear un evento con `POST http://localhost:5151/events` usando el JWT.
    - Ver en la consola del worker que se procesó el mensaje (`Processed EventCreated MessageId=...`).
 
-Todos los comandos concretos están ya listados y probados en `docs/COMANDOS-Y-RUTAS.md`.
+Todos los comandos concretos están en el README raíz y en las secciones de ejecución de este documento.
 
 Para **pruebas con Postman** y guía de pruebas (Redis, RabbitMQ, flujo E2E), ver la carpeta **`postman/`** en la raíz del repositorio (colección importable + README).
 

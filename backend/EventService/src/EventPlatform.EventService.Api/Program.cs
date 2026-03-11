@@ -20,7 +20,6 @@ using Serilog.Sinks.AwsCloudWatch;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------- Serilog + CloudWatch (opcional) ----------
 var logGroupName = builder.Configuration["CloudWatch:LogGroupName"];
 var awsRegion = builder.Configuration["CloudWatch:Region"] ?? builder.Configuration["AWS_REGION"] ?? Environment.GetEnvironmentVariable("AWS_REGION");
 var config = new LoggerConfiguration()
@@ -62,7 +61,6 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ---------- B5: MassTransit + RabbitMQ ----------
 var rabbitConnection = builder.Configuration.GetConnectionString("RabbitMQ") ?? "amqp://guest:guest@localhost:5672";
 var rabbitUri = new Uri(rabbitConnection);
 builder.Services.AddMassTransit(x =>
@@ -82,9 +80,7 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-// ---------- B6: Redis ya registrado en AddInfrastructure (ConnectionStrings:Redis) ----------
-
-// ---------- B7: JWT ----------
+// JWT
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "EventPlatform-SecretKey-Minimo-32-caracteres!!";
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -108,7 +104,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin", "Promotor"));
 });
 
-// ---------- B8: Health checks ----------
 var eventDbConnection = builder.Configuration.GetConnectionString("EventDatabase");
 var healthBuilder = builder.Services.AddHealthChecks();
 healthBuilder.AddNpgSql(eventDbConnection!, name: "postgres", tags: ["db"]);
@@ -119,12 +114,8 @@ if (!string.IsNullOrEmpty(redisConnection))
     healthBuilder.AddRedis(redisConnection, name: "redis", tags: ["cache"]);
 }
 
-// RabbitMQ health check requiere factory; se omite para simplificar o configurar después
-// healthBuilder.AddRabbitMQ(...);
-
 var app = builder.Build();
 
-// Aplicar migraciones pendientes al arrancar (crea tablas si no existen)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EventDbContext>();
@@ -141,7 +132,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ---------- Demo: obtener token JWT (B7) ----------
 app.MapPost("/auth/token", (LoginRequest request) =>
 {
     var secret = app.Configuration["Jwt:Secret"] ?? "EventPlatform-SecretKey-Minimo-32-caracteres!!";
@@ -164,7 +154,6 @@ app.MapPost("/auth/token", (LoginRequest request) =>
     return Results.Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), expires });
 }).AllowAnonymous();
 
-// ---------- POST /events (B5: publicar EventCreated después de guardar) ----------
 app.MapPost("/events", async (
     CreateEventRequest request,
     IEventRepository repository,
@@ -185,7 +174,6 @@ app.MapPost("/events", async (
 
     await repository.AddAsync(eventEntity, cancellationToken);
 
-    // B5: Publicar EventCreated (contrato obligatorio)
     var messageId = Guid.NewGuid();
     var correlationId = Guid.NewGuid();
     await publishEndpoint.Publish(new EventCreatedMessage
@@ -201,7 +189,6 @@ app.MapPost("/events", async (
     return Results.Created($"/events/{eventEntity.Id}", new { eventEntity.Id });
 }).RequireAuthorization("AdminOrPromotor");
 
-// ---------- GET /events (B6: cache Redis) ----------
 const string EventsCacheKey = "events:list";
 const int EventsCacheTtlSeconds = 60;
 
@@ -255,15 +242,11 @@ app.MapGet("/events", async (HttpContext httpContext, IEventRepository repositor
     return Results.Ok(response);
 }).AllowAnonymous();
 
-// ---------- B8: Health ----------
-// Liveness: solo comprueba que el proceso responde (para ECS; evita que maten la tarea por DB/Redis lentos al arranque).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
-// Readiness: Postgres + Redis (para ALB y operadores).
 app.MapHealthChecks("/health");
 
 app.Run();
 
-// DTOs
 public sealed record LoginRequest(string? UserName, string? Role);
 
 public sealed record CreateEventRequest(

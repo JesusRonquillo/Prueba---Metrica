@@ -13,19 +13,17 @@ public class EventsEndpointIntegrationTests : IClassFixture<WebApplicationFactor
 
     public EventsEndpointIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        // Usamos el pipeline real en entorno Development.
         _factory = factory.WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Development");
         });
     }
 
-    [Fact(Skip = "Requiere Postgres/Redis/RabbitMQ levantados (ver docs/COMANDOS-Y-RUTAS.md)")]
+    [Fact(Skip = "Requiere Postgres, Redis y RabbitMQ en ejecución")]
     public async Task PostEvents_Should_ReturnCreated_When_RequestIsValid()
     {
         var client = _factory.CreateClient();
 
-        // 1) Obtener token JWT de demo
         var tokenResponse = await client.PostAsJsonAsync("/auth/token", new { userName = "demo", role = "Admin" });
         tokenResponse.EnsureSuccessStatusCode();
 
@@ -35,7 +33,6 @@ public class EventsEndpointIntegrationTests : IClassFixture<WebApplicationFactor
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenPayload!.Token);
 
-        // 2) Enviar un POST /events válido
         var request = new
         {
             name = "Evento integración",

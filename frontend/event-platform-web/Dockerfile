@@ -1,8 +1,6 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Producción: VITE_API_URL vacío → peticiones relativas al mismo origen (ALB).
-# Local: pasar --build-arg VITE_API_URL=http://localhost:5151 si hace falta.
 ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
 

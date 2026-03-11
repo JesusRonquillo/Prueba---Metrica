@@ -9,16 +9,13 @@ public class EventTests
     [Fact]
     public void Constructor_Should_SetBasicProperties_And_DefaultStatus()
     {
-        // Arrange
         var id = Guid.NewGuid();
         var name = "  Concierto Test  ";
         var date = DateTimeOffset.UtcNow.AddDays(10);
         var location = "  Lima  ";
 
-        // Act
         var ev = new Event(id, name, date, location);
 
-        // Assert
         Assert.Equal(id, ev.Id);
         Assert.Equal("Concierto Test", ev.Name);
         Assert.Equal("Lima", ev.Location);

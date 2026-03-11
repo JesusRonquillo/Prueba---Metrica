@@ -23,7 +23,7 @@ public static class DependencyInjection
 
         services.AddScoped<IEventRepository, EventRepository>();
 
-        // Redis (B6) - opcional si no está configurado
+        // Redis opcional
         var redisConnection = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(redisConnection))
         {

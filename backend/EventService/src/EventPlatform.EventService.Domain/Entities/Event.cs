@@ -9,7 +9,7 @@ public class Event
     public string Name { get; private set; } = null!;
     public DateTimeOffset Date { get; private set; }
     public string Location { get; private set; } = null!;
-    public string Status { get; private set; } = "Draft"; // Draft, Published, Cancelled, etc.
+    public string Status { get; private set; } = "Draft";
 
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
