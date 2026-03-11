@@ -23,6 +23,9 @@ FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
+# Necesario para el health check de ECS (curl -f http://localhost:8080/health/live)
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 ENV ASPNETCORE_URLS=http://+:8080
 
 ENTRYPOINT ["dotnet", "EventPlatform.EventService.Api.dll"]

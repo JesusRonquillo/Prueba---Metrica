@@ -19,7 +19,7 @@ export function EventForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const { token } = useAuth()
+  const { token, clearToken } = useAuth()
 
   const validate = (): boolean => {
     const err: Record<string, string> = {}
@@ -95,11 +95,17 @@ export function EventForm() {
       setLocation('')
       setZones([{ ...initialZone }])
       setFieldErrors({})
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al crear el evento.')
-    } finally {
-      setLoading(false)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Error al crear el evento.'
+    if (message.includes('401')) {
+      clearToken()
+      setError('Sesión inválida o expirada. Pulsa «Obtener JWT» en el encabezado para obtener un token nuevo.')
+    } else {
+      setError(message)
     }
+  } finally {
+    setLoading(false)
+  }
   }
 
   return (

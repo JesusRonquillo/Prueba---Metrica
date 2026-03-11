@@ -9,6 +9,7 @@ using EventPlatform.EventService.Infrastructure;
 using EventPlatform.EventService.Infrastructure.Persistence;
 using EventPlatform.Messaging.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
@@ -154,8 +155,8 @@ app.MapPost("/auth/token", (LoginRequest request) =>
     };
     var expires = DateTime.UtcNow.AddMinutes(app.Configuration.GetValue<int>("Jwt:ExpirationMinutes", 60));
     var token = new JwtSecurityToken(
-        issuer: app.Configuration["Jwt:Issuer"],
-        audience: app.Configuration["Jwt:Audience"],
+        issuer: app.Configuration["Jwt:Issuer"] ?? "EventPlatform.EventService",
+        audience: app.Configuration["Jwt:Audience"] ?? "EventPlatform",
         claims: claims,
         expires: expires,
         signingCredentials: creds
@@ -255,6 +256,9 @@ app.MapGet("/events", async (HttpContext httpContext, IEventRepository repositor
 }).AllowAnonymous();
 
 // ---------- B8: Health ----------
+// Liveness: solo comprueba que el proceso responde (para ECS; evita que maten la tarea por DB/Redis lentos al arranque).
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+// Readiness: Postgres + Redis (para ALB y operadores).
 app.MapHealthChecks("/health");
 
 app.Run();
