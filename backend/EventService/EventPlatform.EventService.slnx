@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EventPlatform.EventService.Api/EventPlatform.EventService.Api.csproj" />
+    <Project Path="src/EventPlatform.EventService.Application/EventPlatform.EventService.Application.csproj" />
+    <Project Path="src/EventPlatform.EventService.Domain/EventPlatform.EventService.Domain.csproj" />
+    <Project Path="src/EventPlatform.EventService.Infrastructure/EventPlatform.EventService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/contracts/">
+    <Project Path="../EventPlatform.Messaging.Contracts/EventPlatform.Messaging.Contracts.csproj" />
+  </Folder>
+  <Project Path="../EventPlatform.EventService.Domain.Tests/EventPlatform.EventService.Domain.Tests.csproj" />
+</Solution>
