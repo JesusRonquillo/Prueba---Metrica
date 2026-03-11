@@ -1,0 +1,35 @@
+# Dependencias y builds
+node_modules/
+.pnpm-store/
+dist/
+build/
+*.lock
+!pnpm-lock.yaml
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+.vs/
+*.dll
+*.pdb
+*.exe
+project.lock.json
+
+# IDE y OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env (no subir secretos)
+.env
+!.env.example
+
+# Logs y temporales
+*.log
+*.tmp
+.cache/
