@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: event-postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eventservice
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6380:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  eventservice-api:
+    build:
+      context: .
+      dockerfile: backend/EventService/Dockerfile
+    container_name: eventservice-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__EventDatabase: Host=postgres;Port=5432;Database=eventservice;Username=postgres;Password=postgres
+      ConnectionStrings__Redis: redis:6379
+      ConnectionStrings__RabbitMQ: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - "5151:8080"
+
+  notificationservice-worker:
+    build:
+      context: .
+      dockerfile: backend/NotificationService/Dockerfile
+    container_name: notificationservice-worker
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__NotificationDatabase: Host=postgres;Port=5432;Database=notificationservice;Username=postgres;Password=postgres
+      ConnectionStrings__RabbitMQ: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend/event-platform-web
+      args:
+        # El navegador debe poder alcanzar la API; en local es el puerto del host.
+        VITE_API_URL: http://localhost:5151
+    container_name: event-frontend
+    depends_on:
+      - eventservice-api
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+

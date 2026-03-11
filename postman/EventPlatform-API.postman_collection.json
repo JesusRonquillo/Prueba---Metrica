@@ -1,0 +1,160 @@
+{
+  "info": {
+    "name": "EventPlatform API",
+    "description": "Colección para probar la Plataforma de Eventos: EventService (JWT, POST/GET events, health)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5151"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Obtener token JWT (POST /auth/token)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userName\": \"demo\",\n  \"role\": \"Admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/token",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "token"]
+        },
+        "description": "Obtiene un JWT para usar en POST /events. Role: Admin o Promotor. En Tests se guarda el token en la variable de colección.",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json && json.token) { pm.collectionVariables.set('token', json.token); }"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Health (GET /health)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Health checks (postgres, redis)."
+      }
+    },
+    {
+      "name": "Crear evento (POST /events)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Concierto prueba\",\n  \"date\": \"2026-03-10T20:00:00Z\",\n  \"location\": \"Lima\",\n  \"zones\": [\n    {\n      \"name\": \"General\",\n      \"price\": 50,\n      \"capacity\": 100\n    },\n    {\n      \"name\": \"VIP\",\n      \"price\": 120,\n      \"capacity\": 20\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": ["{{baseUrl}}"],
+          "path": ["events"]
+        },
+        "description": "Requiere JWT (rol Admin o Promotor). Crea evento y publica EventCreated en RabbitMQ. Guarda el id en eventId para GET /events/{{eventId}}.",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json && json.id) { pm.collectionVariables.set('eventId', json.id); }"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Listar eventos (GET /events)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": ["{{baseUrl}}"],
+          "path": ["events"]
+        },
+        "description": "Lista eventos (con cache Redis 60s si está configurado)."
+      }
+    },
+    {
+      "name": "Detalle evento (GET /events/:id)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["events", "{{eventId}}"]
+        },
+        "description": "Obtiene el detalle de un evento por ID. Ejecutar antes 'Crear evento' o asignar manualmente la variable eventId."
+      }
+    },
+    {
+      "name": "Crear evento (mínimo 1 zona)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Meetup Dev\",\n  \"date\": \"2026-04-15T19:00:00Z\",\n  \"location\": \"Sala Cowork\",\n  \"zones\": [\n    {\n      \"name\": \"Entrada libre\",\n      \"price\": 0,\n      \"capacity\": 50\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": ["{{baseUrl}}"],
+          "path": ["events"]
+        },
+        "description": "Requiere JWT. Ejemplo con una zona y precio 0."
+      }
+    }
+  ]
+}
