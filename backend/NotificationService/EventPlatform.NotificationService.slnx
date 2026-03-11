@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EventPlatform.NotificationService.Worker/EventPlatform.NotificationService.Worker.csproj" />
+    <Project Path="src/EventPlatform.NotificationService.Infrastructure/EventPlatform.NotificationService.Infrastructure.csproj" />
+  </Folder>
+</Solution>
