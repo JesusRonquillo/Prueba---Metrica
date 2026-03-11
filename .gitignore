@@ -5,6 +5,7 @@ dist/
 build/
 *.lock
 !pnpm-lock.yaml
+*.tsbuildinfo
 
 # .NET
 bin/
