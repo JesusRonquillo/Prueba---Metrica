@@ -13,16 +13,16 @@ MVP de una **Plataforma de Eventos** diseñada como sistema **orientado a evento
   - PostgreSQL, Redis, RabbitMQ.
   - `docker-compose` para levantar todo el stack.
 
-La documentación de arquitectura (C4, decisiones, AWS/híbrido) está en `docs/architecture.md` y los diagramas en `docs/diagrams/`.
+La documentación y los **3 diagramas finales** (negocio, arquitectura general, arquitectura específica AWS) están en [docs/](docs/README.md).
 
 ---
 
 ## Estructura del repositorio
 
 - `docs/`
-  - `architecture.md`: documento de arquitectura (visón, microservicios, flujos, resiliencia, AWS/híbrido).
-  - `COMANDOS-Y-RUTAS.md`: comandos de ejecución (manual y con docker-compose) con rutas absolutas.
-  - `diagrams/`: diagramas de contexto, componentes, despliegue, seguridad y flujos.
+  - `README.md`: índice con los 3 diagramas (negocio, arquitectura general, arquitectura específica) y enlace al deploy.
+  - `diagrama-negocio.png`, `diagrama-arquitectura-general.png`, `diagrama-arquitectura-especifica.png`: diagramas en imagen.
+  - `DEPLOY-AWS.md`: guía de despliegue en AWS (Terraform, ECR, ECS).
 - `backend/`
   - `README.md`: documentación del backend (servicios, endpoints, ejecución, docker-compose, proyección a AWS).
   - `EventService/`: solución y código del microservicio de eventos.
@@ -83,7 +83,7 @@ Para parar el stack:
 docker-compose down
 ```
 
-> Nota: en la máquina usada para el reto Docker presentó errores de permisos al detener contenedores (bug del engine), por lo que también se documenta y soporta la ejecución manual descrita en `docs/COMANDOS-Y-RUTAS.md`.
+> Nota: en la máquina usada para el reto Docker presentó errores de permisos al detener contenedores (bug del engine); la ejecución manual (Postgres, Redis, RabbitMQ, dotnet run, pnpm dev) se documenta en `backend/README.md`.
 
 ---
 
@@ -105,10 +105,9 @@ docker-compose down
 
 ## Referencias clave
 
-- **Arquitectura**: `docs/architecture.md`
-- **Diagramas**: `docs/diagrams/`
-- **Comandos y rutas**: `docs/COMANDOS-Y-RUTAS.md`
-- **Postman y pruebas**: `postman/README.md`
-- **Backend**: `backend/README.md`
-- **Frontend**: `frontend/event-platform-web/README.md`
+- **Arquitectura y diagramas**: [docs/](docs/README.md)
+- **Deploy AWS**: [docs/DEPLOY-AWS.md](docs/DEPLOY-AWS.md)
+- **Postman y pruebas**: [postman/README.md](postman/README.md)
+- **Backend**: [backend/README.md](backend/README.md)
+- **Frontend**: [frontend/event-platform-web/README.md](frontend/event-platform-web/README.md)
 
